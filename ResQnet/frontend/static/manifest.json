@@ -1,0 +1,38 @@
+{
+    "name": "ResQNet AI",
+    "short_name": "ResQNet",
+    "description": "AI-Powered Road Emergency Response System",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0b0f1a",
+    "theme_color": "#ff0000",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/static/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/static/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "SOS Emergency",
+            "short_name": "SOS",
+            "url": "/sos",
+            "description": "Trigger emergency SOS"
+        },
+        {
+            "name": "Report Hazard",
+            "short_name": "Report",
+            "url": "/report",
+            "description": "Report a road hazard"
+        }
+    ]
+}

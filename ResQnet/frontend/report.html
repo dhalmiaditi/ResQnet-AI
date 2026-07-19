@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResQNet AI — Report Hazard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#ff0000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+<header>
+    <div class="logo-section">
+        <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="ResQNet Logo" class="header-logo">
+        <div><h1>ResQNet AI</h1><p class="tagline">Predict. Protect. Respond.</p></div>
+    </div>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/sos">SOS</a>
+        <a href="/report">Report Hazard</a>
+        <a href="/womens_safety" style="color:#e91e8c;">👩 Women's Safety</a>
+        <span id="nav-extra"></span>
+    </nav>
+    <div class="top-controls">
+        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" onclick="setLanguage('ta')">தமிழ்</button>
+        <button class="lang-btn" onclick="setLanguage('hi')">हिंदी</button>
+        <button class="theme-btn" onclick="document.body.classList.toggle('light')">🌓</button>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="hero-overlay">
+        <h2>Citizen-Powered Road Safety</h2>
+        <p>Report potholes, damaged roads, flood zones, and accidents with photo evidence.</p>
+    </div>
+</section>
+
+<div style="padding:40px 20px;">
+    <h2 style="color:red;margin-bottom:20px;">📝 Submit a Hazard Report</h2>
+    <form id="hazard-form" onsubmit="submitHazardReport(event)" class="form-box" enctype="multipart/form-data">
+        <label>Hazard Type</label>
+        <select id="hazardType" name="hazardType" required>
+            <option value="">-- Select Hazard Type --</option>
+            <option value="Pothole">Pothole</option>
+            <option value="Broken Signal">Broken Signal</option>
+            <option value="Flood Zone">Flood Zone</option>
+            <option value="Road Damage">Road Damage</option>
+            <option value="Accident Spot">Accident Spot</option>
+            <option value="Other">Other</option>
+        </select>
+        <label>Location Description</label>
+        <input type="text" id="location" name="location" placeholder="e.g. Anna Salai, Chennai" required>
+        <label>📷 Photo Evidence (optional)</label>
+        <input type="file" id="photo" name="photo" accept="image/*" capture="environment"
+            style="color:var(--text-muted); width:100%; padding:12px; border-radius:6px; border:none; margin-bottom:8px; background:#0b0f1a; box-sizing:border-box;"
+            onchange="analyzePhoto(this)">
+
+        <!-- AI analysis result -->
+        <div id="photo-analysis" style="display:none; background:#0b0f1a; padding:14px; border-radius:8px; margin-bottom:16px; border-left:3px solid red;">
+            <p style="color:red; font-weight:bold; margin-bottom:6px;">🤖 AI Analysis:</p>
+            <p id="analysis-description" style="color:#ccc; font-size:14px; margin-bottom:6px;"></p>
+            <p id="analysis-severity" style="font-size:13px;"></p>
+            <p style="color:#aaa; font-size:12px; margin-top:6px;">Hazard type auto-selected below ↓</p>
+        </div>
+        <p id="form-status" style="color:lightgreen;margin-bottom:10px;"></p>
+        <button type="submit" class="btn" style="width:100%;" data-i18n="report">Submit Report</button>
+    </form>
+</div>
+
+<div style="padding:0 20px 40px;">
+    <h2 style="color:red;margin-bottom:20px;">🤖 AI Accident Severity Predictor</h2>
+    <div class="form-box">
+        <label>Speed (km/h)</label>
+        <input type="number" id="speed" placeholder="e.g. 80" min="0" max="200">
+        <label>Weather <span id="weather-live-badge" style="display:none;font-size:11px;color:lightgreen;margin-left:6px;"></span></label>
+        <select id="weather">
+            <option value="clear">Clear</option>
+            <option value="rain">Rain</option>
+            <option value="fog">Fog</option>
+            <option value="storm">Storm</option>
+            <option value="cloudy">Cloudy</option>
+        </select>
+        <label>Road Type</label>
+        <select id="road_type">
+            <option value="urban">Urban</option>
+            <option value="highway">Highway</option>
+            <option value="rural">Rural</option>
+        </select>
+        <label>Hour of Day (0–23)</label>
+        <input type="number" id="time_of_day" placeholder="e.g. 14" min="0" max="23">
+        <button class="btn" onclick="predictSeverity()" style="width:100%;">🤖 Predict Severity</button>
+        <p id="severity-result" style="margin-top:20px;font-size:22px;font-weight:bold;"></p>
+    </div>
+</div>
+
+<footer><p>Safer Roads Through Citizen Action | ResQNet AI</p></footer>
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

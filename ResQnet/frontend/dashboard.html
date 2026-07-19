@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResQNet AI — Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#ff0000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+<header>
+    <div class="logo-section">
+        <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="ResQNet Logo" class="header-logo">
+        <div><h1>ResQNet AI</h1><p class="tagline">Predict. Protect. Respond.</p></div>
+    </div>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/sos">SOS</a>
+        <a href="/report">Report Hazard</a>
+        <a href="/womens_safety" style="color:#e91e8c;">👩 Women's Safety</a>
+        <span id="nav-extra"></span>
+    </nav>
+    <div class="top-controls">
+        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" onclick="setLanguage('ta')">தமிழ்</button>
+        <button class="lang-btn" onclick="setLanguage('hi')">हिंदी</button>
+        <button class="theme-btn" onclick="document.body.classList.toggle('light')">🌓</button>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="hero-overlay">
+        <h2>Real-Time Emergency Intelligence</h2>
+        <p>Live accident monitoring, rescue service locator, and AI blackspot detection.</p>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="stat-card"><h3 id="risk-level">--</h3><p>Current Risk Level</p></div>
+    <div class="stat-card"><h3 id="hazard-count">--</h3><p>Hazards Reported</p></div>
+    <div class="stat-card"><h3 id="sos-count">--</h3><p>Active SOS Alerts</p></div>
+    <div class="stat-card"><h3>108</h3><p>Ambulance Helpline</p></div>
+    <div class="stat-card"><h3>100</h3><p>Police Helpline</p></div>
+</section>
+
+<section class="features">
+    <div class="card"><div class="card-icon">🏥</div><h3>Live Hospital Locator</h3><p>Real hospitals via OpenStreetMap with distances and phone numbers.</p></div>
+    <div class="card"><div class="card-icon">🚑</div><h3>Ambulance ETA</h3><p>Estimated arrival time calculated from your GPS distance.</p></div>
+    <div class="card"><div class="card-icon">🗺️</div><h3>Blackspot Heatmap</h3><p>Auto-detected danger zones from clustered citizen reports.</p></div>
+    <div class="card"><div class="card-icon">📊</div><h3>Export Reports
+        <div style="margin-top:10px;">
+            <button class="btn" style="padding:8px 14px;font-size:13px;" onclick="exportCSV()">📥 CSV</button>
+            <button class="btn" style="padding:8px 14px;font-size:13px;" onclick="exportPDF()">📄 PDF</button>
+        </div>
+    </h3></div>
+</section>
+
+<div style="padding:20px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+    <h2 style="color:red;">📍 Live Emergency Map</h2>
+    <div style="display:flex; gap:10px;">
+        <button onclick="loadHeatmap()" class="btn" style="padding:8px 16px; font-size:13px;">🔥 Refresh Heatmap</button>
+        <button onclick="toggleHeatmap()" class="btn" style="padding:8px 16px; font-size:13px; background:transparent; border:1px solid red; color:red;" id="heatmap-toggle-btn">👁️ Hide Heatmap</button>
+    </div>
+</div>
+
+    <div id="map" style="height:450px;border-radius:12px;"></div>
+</div>
+
+<div style="padding:20px;">
+    <h2 style="color:red;margin-bottom:10px;">📋 Recent Hazard Reports</h2>
+    <table>
+        <thead><tr><th>ID</th><th>Hazard Type</th><th>Location</th><th>Status Timeline</th><th>Reported At</th></tr></thead>
+        <tbody id="reports-body"><tr><td colspan="5" style="padding:20px;color:#aaa;">Loading...</td></tr></tbody>
+    </table>
+</div>
+<div style="padding:20px;">
+    <h2 style="color:red; margin-bottom:20px;">📊 Live Analytics</h2>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:24px;">
+
+        <!-- Pie Chart -->
+        <div style="background:#16213e; padding:24px; border-radius:15px; border:1px solid rgba(255,0,0,0.1);">
+            <h3 style="color:red; margin-bottom:16px;">🕳️ Hazard Type Breakdown</h3>
+            <canvas id="hazardPieChart"></canvas>
+        </div>
+
+        <!-- Bar Chart -->
+        <div style="background:#16213e; padding:24px; border-radius:15px; border:1px solid rgba(255,0,0,0.1);">
+            <h3 style="color:red; margin-bottom:16px;">⏰ Reports by Hour</h3>
+            <canvas id="hourBarChart"></canvas>
+        </div>
+
+        <!-- Line Chart -->
+        <div style="background:#16213e; padding:24px; border-radius:15px; border:1px solid rgba(255,0,0,0.1);">
+            <h3 style="color:red; margin-bottom:16px;">📈 SOS Alerts Over Time</h3>
+            <canvas id="sosLineChart"></canvas>
+        </div>
+
+    </div>
+</div>
+<!-- ROUTE RISK SCORE -->
+<div style="padding:20px; max-width:600px; margin:auto; margin-bottom:40px;">
+    <h2 style="color:red; margin-bottom:20px;">🗺️ Route Risk Score</h2>
+    <div style="background:#16213e; padding:24px; border-radius:15px; border:1px solid rgba(255,0,0,0.1);">
+
+        <label style="color:#ccc; display:block; text-align:left; margin-bottom:6px;">📍 Source</label>
+        <input type="text" id="route-source" placeholder="e.g. Madurai Railway Station"
+            style="width:100%; padding:12px; border-radius:6px; border:none; margin-bottom:16px; background:#0b0f1a; color:white; box-sizing:border-box;">
+
+        <label style="color:#ccc; display:block; text-align:left; margin-bottom:6px;">🏁 Destination</label>
+        <input type="text" id="route-destination" placeholder="e.g. Meenakshi Temple, Madurai"
+            style="width:100%; padding:12px; border-radius:6px; border:none; margin-bottom:16px; background:#0b0f1a; color:white; box-sizing:border-box;">
+
+        <button class="btn" onclick="checkRouteRisk()" style="width:100%;">🗺️ Check Route Risk</button>
+
+        <!-- Result -->
+        <div id="route-result" style="display:none; margin-top:20px;">
+            <div id="route-risk-badge" style="padding:16px; border-radius:10px; text-align:center; margin-bottom:16px;">
+                <h3 id="route-risk-level" style="font-size:28px; margin-bottom:8px;"></h3>
+                <p id="route-risk-score" style="font-size:14px; color:#ccc;"></p>
+                <p id="route-advice" style="font-size:15px; margin-top:8px;"></p>
+            </div>
+            <div id="route-spots" style="margin-top:12px;"></div>
+        </div>
+    </div>
+</div>
+<footer><p>ResQNet AI Dashboard | DhalmiaDiti</p></footer>
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

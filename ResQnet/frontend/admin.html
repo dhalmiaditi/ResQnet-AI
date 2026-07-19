@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResQNet AI — Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#ff0000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+<header>
+    <div class="logo-section">
+        <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="ResQNet Logo" class="header-logo">
+        <div><h1>ResQNet AI</h1><p class="tagline">Admin Panel</p></div>
+    </div>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/sos">SOS</a>
+        <a href="/report">Report Hazard</a>
+        <a href="/womens_safety" style="color:#e91e8c;">👩 Women's Safety</a>
+        <span id="nav-extra"></span>
+    </nav>
+    <div class="top-controls">
+        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" onclick="setLanguage('ta')">தமிழ்</button>
+        <button class="lang-btn" onclick="setLanguage('hi')">हिंदी</button>
+        <button class="theme-btn" onclick="document.body.classList.toggle('light')">🌓</button>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="hero-overlay">
+        <h2>🛡️ Admin Control Panel</h2>
+        <p>Manage SOS alerts, resolve hazard reports, and export data.</p>
+        <button class="btn" onclick="exportCSV()">📥 Export CSV</button>
+        <button class="btn" onclick="exportPDF()">📄 Export PDF</button>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="stat-card"><h3 id="hazard-count">--</h3><p>Total Hazards</p></div>
+    <div class="stat-card"><h3 id="sos-count">--</h3><p>Active SOS</p></div>
+    <div class="stat-card"><h3 id="risk-level">--</h3><p>Risk Level</p></div>
+</section>
+
+<!-- SOS LOGS -->
+<div class="admin-section">
+    <h2>🚨 SOS Emergency Logs</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th><th>Status</th><th>Latitude</th>
+                <th>Longitude</th><th>Action</th><th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody id="admin-sos-body">
+            <tr><td colspan="6" style="padding:20px;color:#aaa;">Loading...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- HAZARD REPORTS WITH TIMELINE -->
+<div style="padding:20px; margin-bottom:40px;">
+    <h2 style="color:red; margin-bottom:16px;">📋 Hazard Reports</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Hazard Type</th>
+                <th>Location</th>
+                <th>Status Timeline</th>
+                <th>Reported At</th>
+                <th>Update Status</th>
+            </tr>
+        </thead>
+        <tbody id="admin-reports-body">
+            <tr><td colspan="6" style="padding:20px;color:#aaa;">Loading...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- USER ROLE MANAGEMENT -->
+<div style="padding:20px; margin-bottom:40px;">
+    <h2 style="color:red; margin-bottom:16px;">👥 User Role Management</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="users-body">
+            <tr><td colspan="6" style="padding:20px;color:#aaa;">Loading users...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<footer><p>ResQNet Admin | Restricted Access | DhalmiaDiti</p></footer>
+
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

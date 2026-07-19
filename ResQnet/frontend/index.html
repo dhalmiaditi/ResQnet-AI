@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResQNet AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#ff0000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+<header>
+    <div class="logo-section">
+        <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="ResQNet Logo" class="header-logo">
+        <div>
+            <h1>ResQNet AI</h1>
+            <p class="tagline">Predict. Protect. Respond.</p>
+        </div>
+    </div>
+    <nav>
+        <a href="/" data-i18n="home">Home</a>
+        <a href="/dashboard" data-i18n="dashboard">Dashboard</a>
+        <a href="/sos">SOS</a>
+        <a href="/report">Report Hazard</a>
+        <a href="/womens_safety" style="color:#e91e8c;">👩 Women's Safety</a>
+        <span id="nav-extra"></span>
+    </nav>
+    <div class="top-controls">
+        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" onclick="setLanguage('ta')">தமிழ்</button>
+        <button class="lang-btn" onclick="setLanguage('hi')">हिंदी</button>
+        <button class="theme-btn" onclick="document.body.classList.toggle('light')">🌓</button>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="hero-overlay">
+        <h2>AI-Powered Road Emergency Response</h2>
+        <p>Smart rescue coordination, accident prevention, and citizen road safety — all in one platform.</p>
+        <a href="/dashboard" class="btn">Launch Dashboard</a>
+        <a href="/sos" class="btn btn-sos">Emergency SOS</a>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="stat-card"><h3>150K+</h3><p>Annual Road Fatalities in India</p></div>
+    <div class="stat-card"><h3>40%</h3><p>Deaths Due to Delayed Rescue</p></div>
+    <div class="stat-card"><h3>24/7</h3><p>Emergency Response Access</p></div>
+    <div class="stat-card"><h3>6 Min</h3><p>Average Ambulance Arrival</p></div>
+</section>
+
+<section class="features">
+    <div class="card"><div class="card-icon">🏥</div><h3>Emergency Locator</h3><p>Find nearby trauma centers and police stations instantly using live OpenStreetMap data.</p></div>
+    <div class="card"><div class="card-icon">🆘</div><h3>One-Tap SOS</h3><p>Trigger emergency alerts with live GPS. SMS sent to your emergency contact automatically.</p></div>
+    <div class="card"><div class="card-icon">🤖</div><h3>AI Severity Detection</h3><p>Predicts accident severity using live weather, speed, road type, and time of day.</p></div>
+    <div class="card"><div class="card-icon">⚠️</div><h3>Hazard Reporting</h3><p>Report potholes, broken signals, and flood zones with photo evidence and GPS tagging.</p></div>
+    <div class="card"><div class="card-icon">🗺️</div><h3>Blackspot Heatmap</h3><p>Auto-detected accident blackspots from clustered hazard reports on the live map.</p></div>
+    <div class="card"><div class="card-icon">📲</div><h3>WhatsApp SOS Share</h3><p>Instantly share your GPS location to family via WhatsApp when SOS is triggered.</p></div>
+    <div class="card" style="border-color:#e91e8c44;"><div class="card-icon">👩</div><h3>Women's Safety</h3><p>Safe Journey Mode with live GPS, Shake-to-SOS, voice activation, and privacy-first emergency recording.</p><a href="/womens_safety" class="btn" style="background:#e91e8c;margin-top:10px;display:inline-block;padding:8px 16px;font-size:13px;">Start Safe Journey →</a></div>
+</section>
+
+<footer><p>ResQNet AI | Road Safety | By DhalmiaDiti</p></footer>
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

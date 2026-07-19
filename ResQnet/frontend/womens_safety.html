@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResQNet AI — Women's Safety</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#e91e8c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        /* ── Women's Safety specific styles ── */
+        .ws-hero {
+            background: linear-gradient(135deg, #1a0030 0%, #16213e 40%, #2d0050 100%);
+            padding: 50px 20px 40px;
+            text-align: center;
+            border-bottom: 2px solid #e91e8c44;
+        }
+        .ws-hero h2 { color: #e91e8c; font-size: 28px; margin-bottom: 10px; }
+        .ws-hero p  { color: #ccc; font-size: 15px; }
+
+        .ws-section {
+            background: var(--bg-secondary);
+            border: 1px solid #e91e8c22;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 20px auto;
+            max-width: 640px;
+        }
+        .ws-section h2 { margin-bottom: 16px; font-size: 18px; }
+
+        .ws-form { display: flex; flex-direction: column; gap: 12px; }
+        .ws-input {
+            background: #0b0f1a;
+            color: white;
+            border: 1px solid #e91e8c33;
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 14px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .ws-input:focus { border-color: #e91e8c; }
+
+        .ws-btn-primary {
+            background: linear-gradient(135deg, #e91e8c, #c2185b);
+            color: white; border: none; border-radius: 10px;
+            padding: 14px 24px; font-size: 16px; font-weight: bold;
+            cursor: pointer; transition: opacity 0.2s; width: 100%;
+        }
+        .ws-btn-primary:hover { opacity: 0.88; }
+
+        .ws-btn-secondary {
+            background: transparent; color: #e91e8c;
+            border: 1px solid #e91e8c; border-radius: 8px;
+            padding: 10px 18px; font-size: 14px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .ws-btn-secondary:hover { background: #e91e8c22; }
+
+        .ws-btn-danger {
+            background: #d32f2f; color: white;
+            border: none; border-radius: 10px;
+            padding: 14px 24px; font-size: 15px; font-weight: bold;
+            cursor: pointer; flex: 1;
+        }
+        .ws-btn-safe {
+            background: #2e7d32; color: white;
+            border: none; border-radius: 10px;
+            padding: 14px 24px; font-size: 15px; font-weight: bold;
+            cursor: pointer; flex: 1;
+        }
+        .ws-btn-stop {
+            background: #37474f; color: white;
+            border: none; border-radius: 10px;
+            padding: 10px 18px; font-size: 14px; cursor: pointer;
+        }
+
+        .ws-banner {
+            padding: 14px 20px; border-radius: 10px;
+            font-weight: bold; font-size: 15px; text-align: center;
+            margin-bottom: 16px;
+        }
+        .ws-banner.monitoring { background: #0a2e0a; border: 1px solid #2e7d32; color: #81c784; }
+        .ws-banner.danger     { background: #2e0000; border: 1px solid #d32f2f; color: #ef9a9a; }
+        .ws-banner.warning    { background: #2e2000; border: 1px solid #f57f17; color: #ffcc80; }
+
+        .ws-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+        .ws-stat-card {
+            background: #0b0f1a; border-radius: 10px;
+            padding: 16px; border: 1px solid #e91e8c22;
+        }
+        .ws-stat-card h3 { font-size: 28px; color: #e91e8c; }
+        .ws-stat-card p  { font-size: 11px; color: #aaa; margin-top: 4px; }
+        .ws-stat-card.safe h3    { color: #4caf50; }
+        .ws-stat-card.danger h3  { color: #f44336; }
+
+        .ws-info-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 8px; font-size: 13px; color: #ccc;
+            background: #0b0f1a; padding: 12px; border-radius: 10px;
+        }
+
+        /* Modals */
+        .ws-modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.85);
+            z-index: 9999; align-items: center; justify-content: center;
+        }
+        .ws-modal-box {
+            background: #16213e; border-radius: 20px;
+            padding: 36px 28px; max-width: 380px; width: 90%;
+            text-align: center; border: 2px solid #e91e8c;
+            animation: wsPopIn 0.3s ease;
+        }
+        .emergency-box { border-color: #f44336; }
+        @keyframes wsPopIn {
+            from { transform: scale(0.85); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+
+        .ws-services-grid { display: flex; flex-direction: column; gap: 10px; }
+        .ws-service-card {
+            background: #0b0f1a; border: 1px solid #e91e8c22;
+            border-radius: 8px; padding: 12px 16px;
+            font-size: 14px; color: #ccc; text-align: left;
+        }
+
+        .ws-history-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 0; border-bottom: 1px solid #1a1a2e;
+            font-size: 13px; color: #ccc;
+        }
+
+        /* Live Map */
+        #ws-live-map {
+            height: 340px;
+            border-radius: 12px;
+            border: 1px solid #e91e8c33;
+            margin-top: 12px;
+        }
+        .ws-map-legend {
+            display: flex; gap: 16px; flex-wrap: wrap;
+            font-size: 12px; color: #aaa; margin-top: 10px;
+        }
+        .ws-map-legend span { display: flex; align-items: center; gap: 5px; }
+
+        /* Nav Women's Safety highlight */
+        nav a[href="/womens_safety"] { color: #e91e8c !important; }
+
+        @media (max-width: 480px) {
+            .ws-stats { grid-template-columns: 1fr 1fr; }
+            .ws-info-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo-section">
+        <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="ResQNet Logo" class="header-logo">
+        <div><h1>ResQNet AI</h1><p class="tagline">Predict. Protect. Respond.</p></div>
+    </div>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/sos">SOS</a>
+        <a href="/report">Report Hazard</a>
+        <a href="/womens_safety">👩 Women's Safety</a>
+        <span id="nav-extra"></span>
+    </nav>
+    <div class="top-controls">
+        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" onclick="setLanguage('ta')">தமிழ்</button>
+        <button class="lang-btn" onclick="setLanguage('hi')">हिंदी</button>
+        <button class="theme-btn" onclick="document.body.classList.toggle('light')">🌓</button>
+    </div>
+</header>
+
+<div class="ws-hero">
+    <h2>👩‍🦺 Women's Safety — Safe Journey Mode</h2>
+    <p>Real-time protection during travel. Camera and microphone activate only in confirmed emergencies.</p>
+</div>
+
+<!-- All Women's Safety content rendered here by JS -->
+<div id="ws-main" style="padding: 0 16px 60px;"></div>
+
+<footer><p>ResQNet AI — Women's Safety | Protect Every Journey</p></footer>
+
+<!-- Map section (always visible, outside ws-main so it persists on re-render) -->
+<div style="padding: 0 16px; max-width: 700px; margin: 20px auto 0;">
+    <div style="background:#16213e; border:1px solid #e91e8c22; border-radius:16px; padding:20px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+            <h2 style="color:#e91e8c; font-size:18px;">📍 Live Journey Map</h2>
+            <button onclick="wsMapRefresh()" class="ws-btn-secondary" style="padding:6px 14px;font-size:12px;">🔄 Refresh</button>
+        </div>
+        <div id="ws-live-map"></div>
+        <div class="ws-map-legend">
+            <span>🔵 Your Location</span>
+            <span>🟣 Route Path</span>
+            <span>🚔 Police Station</span>
+            <span>🏥 Hospital</span>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResQNet AI — Live Tracking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#ff0000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+<header>
+    <div class="logo-section">
+        <h1>🚨 ResQNet AI</h1>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="hero-overlay">
+        <h2>📡 Live Emergency Tracking</h2>
+        <p id="track-status" style="color:orange;">Connecting to live location...</p>
+        <p id="track-updated" style="color:#aaa; font-size:13px;"></p>
+    </div>
+</section>
+
+<div style="padding:20px;">
+    <div id="track-map" style="height:500px; border-radius:12px;"></div>
+</div>
+
+<div style="padding:20px; text-align:center;">
+    <div class="stat-card" style="display:inline-block; padding:20px 40px;">
+        <h3 id="track-lat">--</h3>
+        <p>Latitude</p>
+    </div>
+    <div class="stat-card" style="display:inline-block; padding:20px 40px; margin-left:20px;">
+        <h3 id="track-lng">--</h3>
+        <p>Longitude</p>
+    </div>
+</div>
+
+<footer>
+    <p>ResQNet AI | Live Emergency Tracking</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    const trackId = "{{ track_id }}";
+    let trackMap  = null;
+    let marker    = null;
+
+    // Initialize map
+    trackMap = L.map('track-map').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(trackMap);
+
+    function fetchLocation() {
+        fetch(`/api/track/${trackId}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'not_found') {
+                    document.getElementById('track-status').textContent = '⏳ Waiting for location...';
+                    document.getElementById('track-status').style.color = 'orange';
+                    return;
+                }
+
+                const lat = data.latitude;
+                const lng = data.longitude;
+
+                document.getElementById('track-status').textContent  = '🟢 Live location active';
+                document.getElementById('track-status').style.color  = 'lightgreen';
+                document.getElementById('track-updated').textContent = `Last updated: ${data.updated_at}`;
+                document.getElementById('track-lat').textContent     = lat.toFixed(6);
+                document.getElementById('track-lng').textContent     = lng.toFixed(6);
+
+                // Move map to location
+                trackMap.setView([lat, lng], 15);
+
+                // Update or create marker
+                if (marker) {
+                    marker.setLatLng([lat, lng]);
+                } else {
+                    marker = L.marker([lat, lng], {
+                        icon: L.divIcon({
+                            className: '',
+                            html: '<div style="background:red;width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 0 10px red;animation:pulse 1s infinite;"></div>'
+                        })
+                    }).addTo(trackMap).bindPopup("🚨 Emergency Location").openPopup();
+                }
+            })
+            .catch(() => {
+                document.getElementById('track-status').textContent = '❌ Could not connect.';
+                document.getElementById('track-status').style.color = 'red';
+            });
+    }
+
+    // Fetch immediately then every 10 seconds
+    fetchLocation();
+    setInterval(fetchLocation, 10000);
+</script>
+</body>
+</html>

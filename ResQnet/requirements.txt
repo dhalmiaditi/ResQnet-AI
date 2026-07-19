@@ -1,0 +1,7 @@
+Flask
+Flask-Limiter
+flask-socketio
+python-dotenv
+requests
+Werkzeug
+fpdf2

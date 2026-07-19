@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResQNet AI — Emergency SOS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#ff0000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+    <div id="location-warning" style="display:none; background:#3a0000; color:white;
+    padding:14px; text-align:center; font-weight:bold; border-bottom:2px solid red;">
+    ⚠️ Location access is OFF — Enable it now for accurate SOS!
+    <a href="javascript:void(0)" onclick="requestLocation()"
+        style="color:#f88; margin-left:10px; text-decoration:underline;">
+        Enable Location
+    </a>
+    </div>
+<header>
+    <div class="logo-section">
+        <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="ResQNet Logo" class="header-logo">
+        <div><h1>ResQNet AI</h1><p class="tagline">Predict. Protect. Respond.</p></div>
+    </div>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/sos">SOS</a>
+        <a href="/report">Report Hazard</a>
+        <a href="/womens_safety" style="color:#e91e8c;">👩 Women's Safety</a>
+        <span id="nav-extra"></span>
+    </nav>
+    <div class="top-controls">
+        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" onclick="setLanguage('ta')">தமிழ்</button>
+        <button class="lang-btn" onclick="setLanguage('hi')">हिंदी</button>
+        <button class="theme-btn" onclick="document.body.classList.toggle('light')">🌓</button>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="hero-overlay">
+        <h2>Immediate Rescue Activation</h2>
+        <p>One-tap emergency response with live GPS, SMS alert to your emergency contact, and real nearby services.</p>
+        <button class="sos-btn" onclick="sendSOS()" id="sos-button" data-i18n="sos">🆘 SEND SOS</button>
+        <div style="margin-top:30px;">
+    <button id="voice-sos-btn" onclick="startVoiceSOS()"
+        style="background:red; color:white; padding:14px 28px; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer;">
+        🎤 Start Voice SOS
+    </button>
+    <p id="voice-status" style="margin-top:12px; font-size:16px;"></p>
+    <p style="color:#aaa; font-size:13px; margin-top:8px;">Say "Help", "SOS", "Emergency" or "Accident" to auto-trigger</p></div>
+        <p id="sos-status"style="margin-top:20px;font-size:18px;font-weight:bold;"></p>
+        <div id="manual-location" style="display:none; margin-top:16px;">
+    <p style="color:orange; margin-bottom:8px;">📍 Enter your location manually:</p>
+    <input type="text" id="manual-loc-input"
+        placeholder="e.g. Near Meenakshi Temple, Madurai"
+        style="width:300px; padding:12px; border-radius:6px; border:none;
+               background:#0b0f1a; color:white; box-sizing:border-box; margin-bottom:10px;">
+    <br>
+    <button class="btn" onclick="sendSOSManual()" style="margin-top:8px;">
+        🆘 Send SOS with Manual Location
+    </button>
+        </div>
+        <!-- Live tracking link shown after SOS -->
+<div id="tracking-section" style="display:none; margin-top:20px;">
+    <p style="color:lightgreen; font-size:16px;">📡 Live tracking active — share this link:</p>
+    <div style="background:#0b0f1a; padding:12px; border-radius:8px; margin:10px 0;">
+        <a id="tracking-link" href="#" target="_blank"
+            style="color:#4af; font-size:14px; word-break:break-all;"></a>
+    </div>
+    <button onclick="copyTrackingLink()"
+        style="background:#333; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; margin-right:10px;">
+        📋 Copy Link
+    </button>
+    <a id="whatsapp-track-btn" href="#" target="_blank"
+        style="background:#25D366; color:white; padding:10px 20px; border-radius:6px; text-decoration:none; font-weight:bold;">
+        📲 Share on WhatsApp
+    </a>
+</div>
+
+<!-- Countdown timer -->
+<p id="sos-countdown" style="display:none; color:orange; font-size:18px; margin-top:16px;"></p>
+        <div id="sos-countdown"></div>
+        <div id="whatsapp-share"></div>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="stat-card"><h3>108</h3><p>Ambulance</p></div>
+    <div class="stat-card"><h3>📍 Live</h3><p>GPS Tracking</p></div>
+    <div class="stat-card"><h3>24/7</h3><p>Emergency Access</p></div>
+    <div class="stat-card"><h3>100</h3><p>Police Helpline</p></div>
+    <div class="stat-card"><h3>112</h3><p>National Emergency</p></div>
+</section>
+
+<div id="services-section" style="display:none;padding:20px;">
+    <h2 style="color:red;">🚑 Nearby Emergency Services</h2>
+    <div id="services-list" class="features"></div>
+</div>
+
+<footer><p>Saving Minutes Means Saving Lives | ResQNet AI</p></footer>
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+<div style="margin-top:20px;">
+    <button id="crash-detect-btn" onclick="startCrashDetection()"
+        style="background:red; color:white; padding:14px 28px; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer;">
+        📱 Start Crash Detection
+    </button>
+    <p id="crash-status" style="margin-top:12px; font-size:16px; color:#aaa;"></p>
+    <p style="color:#aaa; font-size:13px; margin-top:4px;">Automatically detects sudden impact and triggers SOS</p>
+</div>
+
+<!-- Crash Countdown Overlay -->
+<div id="crash-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; flex-direction:column; align-items:center; justify-content:center;">
+    <div style="background:#16213e; padding:40px; border-radius:20px; text-align:center; border:2px solid red;">
+        <h2 style="color:red; font-size:30px; margin-bottom:10px;">💥 CRASH DETECTED!</h2>
+        <p style="color:white; font-size:18px; margin-bottom:20px;">SOS sending in:</p>
+        <div id="crash-countdown-num" style="color:red; font-size:80px; font-weight:bold; line-height:1;">10</div>
+        <p style="color:#aaa; margin:20px 0;">seconds</p>
+        <button onclick="cancelCrashSOS()"
+            style="background:green; color:white; padding:16px 40px; border:none; border-radius:10px; font-size:20px; font-weight:bold; cursor:pointer;">
+            ✅ I AM SAFE — CANCEL
+        </button>
+    </div>
+</div>
